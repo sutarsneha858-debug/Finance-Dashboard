@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinPilot — Personal Finance Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">F</div><div><strong>FinPilot</strong><span>Financial Intelligence</span></div></div>
+    <nav>
+      <button class="nav-item active" data-section="overview">⌂ <span>Overview</span></button>
+      <button class="nav-item" data-section="transactions">▤ <span>Transactions</span></button>
+      <button class="nav-item" data-section="subscriptions">↻ <span>Subscriptions</span></button>
+      <button class="nav-item" data-section="budgets">◫ <span>Budgets</span></button>
+      <button class="nav-item" data-section="goals">◎ <span>Goals</span></button>
+      <button class="nav-item" data-section="assistant">✦ <span>AI Assistant</span></button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="privacy"><span>●</span> Local-first demo<br><small>Your data stays in this app.</small></div>
+      <button class="reset-btn" onclick="resetDemo()">↺ Restore demo data</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div><div class="eyebrow">PERSONAL FINANCE OS</div><h1 id="page-title">Financial Overview</h1></div>
+      <div class="top-actions">
+        <label class="month-picker">Month <input type="month" id="month" value="2026-09" onchange="loadDashboard()"></label>
+        <button class="icon-btn" onclick="document.getElementById('file').click()">＋ Import CSV</button>
+        <input hidden type="file" id="file" accept=".csv" onchange="uploadCSV()">
+      </div>
+    </header>
+
+    <section id="overview" class="section active">
+      <div class="hero-card">
+        <div><span class="eyebrow light">MONTHLY SNAPSHOT</span><h2 id="hero-title">September 2026</h2><p>Understand your cash flow, commitments and goals at a glance.</p></div>
+        <div class="hero-score"><span>Financial pulse</span><strong id="pulse">—</strong><small>based on tracked activity</small></div>
+      </div>
+      <div class="metric-grid">
+        <div class="metric"><span>Income</span><strong id="income">₹0</strong><small class="positive">Tracked inflow</small></div>
+        <div class="metric"><span>Expenses</span><strong id="expenses">₹0</strong><small>Tracked outflow</small></div>
+        <div class="metric"><span>Net savings</span><strong id="savings">₹0</strong><small id="savingRate">0% savings rate</small></div>
+        <div class="metric"><span>Budget used</span><strong id="budgetUsed">0%</strong><small>Across tracked categories</small></div>
+      </div>
+      <div class="grid-2">
+        <div class="panel"><div class="panel-head"><div><h3>Spending by category</h3><p>Where your money went this month</p></div></div><div class="chart-wrap"><canvas id="categoryChart"></canvas></div></div>
+        <div class="panel"><div class="panel-head"><div><h3>Smart insights</h3><p>Signals detected from your data</p></div></div><div id="insights" class="insight-list"></div></div>
+      </div>
+      <div class="grid-2">
+        <div class="panel"><div class="panel-head"><div><h3>Budget health</h3><p>Actual spending vs planned limits</p></div></div><div id="budgetHealth"></div></div>
+        <div class="panel"><div class="panel-head"><div><h3>Month-over-month</h3><p>Categories with the biggest changes</p></div></div><div id="changes"></div></div>
+      </div>
+    </section>
+
+    <section id="transactions" class="section">
+      <div class="section-intro"><span class="eyebrow">LEDGER</span><h2>Transactions</h2><p>Every imported transaction, automatically categorized.</p></div>
+      <div class="panel"><div class="table-tools"><input id="search" placeholder="Search transactions..." oninput="renderTransactions()"><select id="typeFilter" onchange="renderTransactions()"><option value="">All types</option><option value="income">Income</option><option value="expense">Expense</option></select></div><div class="table-scroll"><table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th>Amount</th></tr></thead><tbody id="txBody"></tbody></table></div></div>
+  </section>
+
+  <section id="subscriptions" class="section">
+    <div class="section-intro"><span class="eyebrow">RECURRING INTELLIGENCE</span><h2>Subscriptions & recurring payments</h2><p>Repeated payments are grouped so upcoming obligations are easier to see.</p></div>
+    <div id="recurringGrid" class="cards-grid"></div>
+    <div class="panel"><div class="panel-head"><div><h3>Unusual spending</h3><p>Large transactions flagged by an explainable threshold.</p></div></div><div id="unusual"></div></div>
+  </section>
+
+  <section id="budgets" class="section">
+    <div class="section-intro"><span class="eyebrow">CONTROL CENTER</span><h2>Budgets</h2><p>Set limits and monitor how much is already committed.</p></div>
+    <div class="panel form-panel"><h3>Create / update budget</h3><div class="form-row"><input id="budgetCategory" placeholder="Category e.g. Food & Dining"><input id="budgetAmount" type="number" placeholder="Monthly limit"><button class="primary" onclick="saveBudget()">Save budget</button></div></div>
+    <div id="budgetCards" class="cards-grid"></div>
+  </section>
+
+  <section id="goals" class="section">
+    <div class="section-intro"><span class="eyebrow">GOAL PLANNER</span><h2>Financial goals</h2><p>See how current savings translate into your target.</p></div>
+    <div class="panel form-panel"><h3>Add a goal</h3><div class="form-row"><input id="goalName" placeholder="Goal name"><input id="goalTarget" type="number" placeholder="Target amount"><input id="goalSaved" type="number" placeholder="Already saved"><input id="goalDeadline" type="date"><button class="primary" onclick="saveGoal()">Create goal</button></div></div>
+    <div id="goalsGrid" class="cards-grid"></div>
+  </section>
+
+  <section id="assistant" class="section">
+    <div class="section-intro"><span class="eyebrow">DECISION SUPPORT</span><h2>FinPilot Assistant</h2><p>Ask questions about the data in plain language. This demo uses explainable local analytics.</p></div>
+    <div class="assistant-layout"><div class="panel chat-panel"><div id="chat" class="chat"><div class="bot msg"><b>FinPilot</b><p>Hi! Ask me “Where did I spend the most this month?” or “Which subscriptions am I paying for?”</p></div></div><div class="askbar"><input id="question" placeholder="Ask about your finances..." onkeydown="if(event.key==='Enter') askQuestion()"><button class="primary" onclick="askQuestion()">Ask</button></div></div>
+    <div class="panel prompt-panel"><h3>Try asking</h3><button onclick="setQ('Where did I spend the most this month?')">Where did I spend the most?</button><button onclick="setQ('Which subscriptions am I paying for?')">Which subscriptions do I have?</button><button onclick="setQ('What expenses increased compared with last month?')">What increased vs last month?</button><button onclick="setQ('How much of my budget is already committed?')">How much budget is committed?</button></div></div>
+  </section>
+
+  <footer>FinPilot is a decision-support prototype. It does not provide investment, lending, tax, insurance or other regulated financial advice.</footer>
+</main>
+</div>
+<div id="toast"></div>
+<script src="/static/js/script.js"></script>
+</body>
+</html>
